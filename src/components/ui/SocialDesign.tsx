@@ -4,36 +4,49 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Bell, BookmarkIcon, Home, Mail, Search, User } from "lucide-react"
+import Link from 'next/link'
 
-export default function Component() {
+export default function SocialDesign() {
   return (
-    <div className="max-w-2xl mx-auto">
-      <header className="flex justify-between items-center p-4 border-b">
+    <div className="max-w-2xl mx-auto bg-background text-foreground">
+      <header className="flex justify-between items-center p-4 border-b border-border">
         <nav className="flex space-x-4">
-          <Button variant="ghost" size="icon">
-            <Home className="h-5 w-5" />
-            <span className="sr-only">Home</span>
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Search className="h-5 w-5" />
-            <span className="sr-only">Search</span>
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5" />
-            <span className="sr-only">Notifications</span>
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Mail className="h-5 w-5" />
-            <span className="sr-only">Messages</span>
-          </Button>
-          <Button variant="ghost" size="icon">
-            <BookmarkIcon className="h-5 w-5" />
-            <span className="sr-only">Bookmarks</span>
-          </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-            <span className="sr-only">Profile</span>
-          </Button>
+          <Link href="/feed">
+            <Button variant="ghost" size="icon">
+              <Home className="h-5 w-5" />
+              <span className="sr-only">Home</span>
+            </Button>
+          </Link>
+          <Link href="/search">
+            <Button variant="ghost" size="icon">
+              <Search className="h-5 w-5" />
+              <span className="sr-only">Search</span>
+            </Button>
+          </Link>
+          <Link href="/notifications">
+            <Button variant="ghost" size="icon">
+              <Bell className="h-5 w-5" />
+              <span className="sr-only">Notifications</span>
+            </Button>
+          </Link>
+          <Link href="/messages">
+            <Button variant="ghost" size="icon">
+              <Mail className="h-5 w-5" />
+              <span className="sr-only">Messages</span>
+            </Button>
+          </Link>
+          <Link href="/bookmarks">
+            <Button variant="ghost" size="icon">
+              <BookmarkIcon className="h-5 w-5" />
+              <span className="sr-only">Bookmarks</span>
+            </Button>
+          </Link>
+          <Link href="/profile">
+            <Button variant="ghost" size="icon">
+              <User className="h-5 w-5" />
+              <span className="sr-only">Profile</span>
+            </Button>
+          </Link>
         </nav>
         <Avatar>
           <AvatarImage src="/placeholder-user.jpg" alt="@user" />
@@ -79,7 +92,7 @@ export default function Component() {
                   </Avatar>
                   <div>
                     <p className="font-semibold">User {tweet}</p>
-                    <p className="text-sm text-gray-500">@user{tweet}</p>
+                    <p className="text-sm text-muted-foreground">@user{tweet}</p>
                   </div>
                 </div>
               </CardHeader>
@@ -87,7 +100,7 @@ export default function Component() {
                 <p>This is a sample tweet {tweet}. It could contain text, images, or other media.</p>
               </CardContent>
               <CardFooter>
-                <div className="flex space-x-4 text-gray-500">
+                <div className="flex space-x-4 text-muted-foreground">
                   <Button variant="ghost" size="sm">
                     Reply
                   </Button>

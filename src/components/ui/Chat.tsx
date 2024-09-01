@@ -1,37 +1,64 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Send } from "lucide-react"
-
-interface Message {
-  id: number
-  text: string
-  sender: 'user' | 'other'
-}
+import { connectToSignalR, sendMessage, getChatHistory, Message } from '@/lib/chat'
 
 export default function ChatComponent() {
-  const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: "Hey there!", sender: 'other' },
-    { id: 2, text: "Hi! How are you?", sender: 'user' },
-    { id: 3, text: "I'm doing great, thanks for asking!", sender: 'other' },
-  ])
-  const [newMessage, setNewMessage] = useState('')
+  const [messages, setMessages] = useState<Message[]>([])
+  const [newMessage, setNewMessage] = useState('');
+  const [receiverId, setReceiverId] = useState('');
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (newMessage.trim()) {
-      setMessages([...messages, { id: messages.length + 1, text: newMessage, sender: 'user' }])
-      setNewMessage('')
+  const messageEndRef = useRef<null | HTMLDivElement>(null);
+
+  useEffect(() => {
+    connectToSignalR(
+      (message) => setMessages(prev => [...prev, message]),
+      (history) => setMessages(history)
+    ).catch(err => console.error('SignalR connection error:', err));
+  }, []);
+
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newMessage.trim() && receiverId) {
+      try {
+        await sendMessage(receiverId, newMessage);
+        setNewMessage('');
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
     }
-  }
+  };
+
+  const handleGetChatHistory = async () => {
+    if (receiverId) {
+      try {
+        await getChatHistory(receiverId);
+      } catch (error) {
+        console.error('Error getting chat history:', error);
+      }
+    }
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto h-[600px] flex flex-col">
       <CardHeader>
         <CardTitle>Chat</CardTitle>
+        <Input
+          type="text"
+          placeholder="Enter receiver ID"
+          value={receiverId}
+          onChange={(e) => setReceiverId(e.target.value)}
+          className="mt-2"
+        />
+        <Button onClick={handleGetChatHistory} className="mt-2">Load Chat History</Button>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden">
         <ScrollArea className="h-full pr-4">
@@ -39,10 +66,10 @@ export default function ChatComponent() {
             <div
               key={message.id}
               className={`flex items-start mb-4 ${
-                message.sender === 'user' ? 'justify-end' : 'justify-start'
+                message.senderId === 'currentUserId' ? 'justify-end' : 'justify-start'
               }`}
             >
-              {message.sender === 'other' && (
+              {message.senderId !== 'currentUserId' && (
                 <Avatar className="mr-2">
                   <AvatarImage src="/placeholder-avatar.jpg" alt="Other user" />
                   <AvatarFallback>OU</AvatarFallback>
@@ -50,14 +77,14 @@ export default function ChatComponent() {
               )}
               <div
                 className={`rounded-lg p-3 max-w-[70%] ${
-                  message.sender === 'user'
+                  message.senderId === 'currentUserId'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-secondary text-secondary-foreground'
                 }`}
               >
                 {message.text}
               </div>
-              {message.sender === 'user' && (
+              {message.senderId === 'currentUserId' && (
                 <Avatar className="ml-2">
                   <AvatarImage src="/placeholder-user.jpg" alt="User" />
                   <AvatarFallback>U</AvatarFallback>
@@ -65,6 +92,7 @@ export default function ChatComponent() {
               )}
             </div>
           ))}
+          <div ref={messageEndRef} />
         </ScrollArea>
       </CardContent>
       <CardFooter>

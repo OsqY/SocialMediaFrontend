@@ -35,7 +35,7 @@ export default function Component() {
   }
 
   return (
-    <Card className="w-80">
+    <Card className="w-80 bg-card text-card-foreground">
       <CardHeader>
         <CardTitle className="text-xl flex items-center">
           <TrendingUp className="w-5 h-5 mr-2" />
