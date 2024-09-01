@@ -15,7 +15,9 @@ let connection = new signalR.HubConnectionBuilder().withUrl(`${API_BASE_URL}/cha
 
 export function connectToSignalR(onNewMessage : (message: Message) => void, onChatHistory: (history: Message[]) => void) {
     connection = new signalR.HubConnectionBuilder().withUrl(`${API_BASE_URL}/chatHub`, {
-        accessTokenFactory: () => Cookies.get('token') ||''
+        accessTokenFactory: () => Cookies.get('token') ||'',
+        skipNegotiation:true,
+        transport:signalR.HttpTransportType.WebSockets
     })
     .withAutomaticReconnect().build();
 
@@ -32,7 +34,7 @@ export async function sendMessage(receiverId:string, content:string) {
    if(!connection)  {
     throw new Error("SignalR connection not initialized");
    }
-   await connection.invoke("SendMessageToUser");
+   await connection.invoke("SendMessageToUser", receiverId,content);
 }
 
 export async function getChatHistory(userId:string){ 

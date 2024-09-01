@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CalendarIcon, MapPinIcon, LinkIcon } from 'lucide-react'
-import { getUserProfile } from '@/lib/user'
+import { getUserByUsername} from '@/lib/user'
 import Cookies from 'js-cookie';
 import {jwtDecode} from 'jwt-decode';
 
@@ -46,7 +46,7 @@ export default function UserProfile({ username }: UserProfileProps) {
         }
 
         if (userToFetch) {
-          const userData = await getUserProfile(userToFetch);
+          const userData = (await getUserByUsername(userToFetch)).data;
           setUser(userData);
           setError(null);
         } else {

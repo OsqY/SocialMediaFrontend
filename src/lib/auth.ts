@@ -8,10 +8,11 @@ export async function loginUser(username: string, password: string) {
     const response = await axios.post(`${API_BASE_URL}/User/Login`, {
       username,
       password,
+      
     });
     const token = response.data;
     console.log(token);
-    Cookies.set('token', token, { expires: 1/24/60/4  }); 
+    Cookies.set('token', token, { expires: 1/96  }); 
     return token;
   } catch (error) {
     throw new Error('Login failed');

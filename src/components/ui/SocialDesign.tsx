@@ -3,10 +3,34 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { connectToSignalR, createPost, Post} from "@/lib/post"
 import { Bell, BookmarkIcon, Home, Mail, Search, User } from "lucide-react"
 import Link from 'next/link'
+import React, { useEffect, useState } from "react"
 
 export default function SocialDesign() {
+  const [newPost, setNewPost] = useState('');
+  const [posts, setPosts] = useState<Post[]> ([])
+
+  useEffect(() => {
+    connectToSignalR(
+      (post) => setPosts(prev => [...prev, post]),
+    ).catch(err =>console.error('SignalR connection error: ', err))
+  },[])
+
+  const handleNewPost = async(e: React.FormEvent)=> {
+    e.preventDefault();
+    console.log("AAA")
+    if(newPost.trim() ) {
+      try {
+        await createPost(newPost);
+        setNewPost('');
+      }
+      catch(error) {
+        console.error('Error creating post: ', error);
+      }
+    }
+  }
   return (
     <div className="max-w-2xl mx-auto bg-background text-foreground">
       <header className="flex justify-between items-center p-4 border-b border-border">
@@ -55,14 +79,15 @@ export default function SocialDesign() {
       </header>
       <main className="p-4">
         <Card className="mb-4">
+          <form onSubmit={handleNewPost}>
           <CardHeader>
-            <div className="flex items-start space-x-4">
+            <div className="flex items-start space-x-3">
               <Avatar>
                 <AvatarImage src="/placeholder-user.jpg" alt="@user" />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <Textarea className="min-h-[100px]" placeholder="What's happening?" />
+                <Textarea value={newPost} onChange={(e) => setNewPost(e.target.value)} className="min-h-[100px]" placeholder="What's happening?" />
               </div>
             </div>
           </CardHeader>
@@ -78,8 +103,9 @@ export default function SocialDesign() {
                 Poll
               </Button>
             </div>
-            <Button>Post</Button>
+            <Button type="submit">Post</Button>
           </CardFooter>
+          </form>
         </Card>
         <div className="space-y-4">
           {[1, 2, 3].map((tweet) => (
