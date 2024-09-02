@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CalendarIcon, MapPinIcon, LinkIcon } from 'lucide-react'
-import { getUserByUsername} from '@/lib/user'
+import { getUserByUsername, getUserProfile} from '@/lib/user'
 import Cookies from 'js-cookie';
 import {jwtDecode} from 'jwt-decode';
 
@@ -38,20 +38,24 @@ export default function UserProfile({ username }: UserProfileProps) {
         let userToFetch = username;
 
         if (!userToFetch) {
-          const token = Cookies.get('token');
-          if (token) {
-            const decodedToken: any = jwtDecode(token);
-            userToFetch = decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
+          const ownUser = await getUserProfile();
+          if (ownUser != null) {
+            console.log(ownUser)
+          setUser(ownUser);
+          setError(null)
+
           }
         }
-
+        else {
         if (userToFetch) {
-          const userData = (await getUserByUsername(userToFetch)).data;
+          const userData = await getUserByUsername(userToFetch);
           setUser(userData);
           setError(null);
         } else {
           setError('No username found');
         }
+        }
+
       } catch (err) {
         setError('Failed to load user profile');
         console.error(err);
@@ -90,7 +94,7 @@ export default function UserProfile({ username }: UserProfileProps) {
             {user.isOwnUserProfile ? (
               <Button>Edit Profile</Button>
             ) : (
-              <Button>Follow</Button>
+              <Button onClick={}>Follow</Button>
             )}
           </div>
           <div className="flex gap-4 mb-4">
